@@ -6,7 +6,7 @@ import ModelCard from './ModelCard';
 import ProviderCard from './ProviderCard';
 import SetupGuide from './SetupGuide';
 import StatusDashboard from './StatusDashboard';
-import { OLLAMA_API_URL } from './types';
+import { OLLAMA_API_URL, type ProviderName as LocalProviderName } from './types';
 import type { OllamaModel, LMStudioModel } from './types';
 import { Button } from '~/components/ui/Button';
 import { Card, CardContent, CardHeader } from '~/components/ui/Card';
@@ -67,8 +67,8 @@ export default function LocalProvidersTab() {
         } as IProviderConfig;
       })
       .sort((a, b) => {
-        // Custom sort: Ollama first, then LMStudio, then OpenAILike
-        const order = { Ollama: 0, LMStudio: 1, OpenAILike: 2 };
+        // Custom sort: Ollama first, then LMStudio, then OpenAILike, then RemoteHosted
+        const order = { Ollama: 0, LMStudio: 1, OpenAILike: 2, RemoteHosted: 3 };
         return (order[a.name as keyof typeof order] || 3) - (order[b.name as keyof typeof order] || 3);
       });
   }, [providers]);
@@ -84,10 +84,10 @@ export default function LocalProvidersTab() {
 
       if (provider.settings.enabled && baseUrl) {
         console.log(`[LocalProvidersTab] Starting monitoring for ${provider.name} at ${baseUrl}`);
-        startMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
+        startMonitoring(provider.name as LocalProviderName, baseUrl);
       } else if (!provider.settings.enabled && baseUrl) {
         console.log(`[LocalProvidersTab] Stopping monitoring for ${provider.name} at ${baseUrl}`);
-        stopMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
+        stopMonitoring(provider.name as LocalProviderName, baseUrl);
       }
     });
   }, [filteredProviders, startMonitoring, stopMonitoring]);
@@ -188,6 +188,27 @@ export default function LocalProvidersTab() {
       toast(`${provider.name} base URL updated`);
     },
     [updateProviderSettings, toast],
+  );
+
+  const handleUpdateApiKey = useCallback(
+    (provider: IProviderConfig, apiKey: string) => {
+      const next = apiKey.trim();
+
+      // Avoid a needless store write when blur fires right after Enter.
+      if ((provider.settings.apiKey || '') === next) {
+        return;
+      }
+
+      updateProviderSettings(provider.name, {
+        ...provider.settings,
+        apiKey: next,
+      });
+
+      logStore.logProvider(`API key ${next ? 'set' : 'cleared'} for ${provider.name}`, {
+        provider: provider.name,
+      });
+    },
+    [updateProviderSettings],
   );
 
   const handleUpdateOllamaModel = async (modelName: string) => {
@@ -353,6 +374,7 @@ export default function LocalProvidersTab() {
                 provider={provider}
                 onToggle={(enabled) => handleToggleProvider(provider, enabled)}
                 onUpdateBaseUrl={(url) => handleUpdateBaseUrl(provider, url)}
+                onUpdateApiKey={(key) => handleUpdateApiKey(provider, key)}
                 isEditing={editingProvider === provider.name}
                 onStartEditing={() => setEditingProvider(provider.name)}
                 onStopEditing={() => setEditingProvider(null)}

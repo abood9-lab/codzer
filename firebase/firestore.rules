@@ -1,0 +1,62 @@
+rules_version = '2';
+
+//
+// Codzer — Cloud Firestore security rules
+//
+// Principle: every user's data lives under users/{userId}/** and is only
+// reachable by the signed-in owner. The owner is always derived from
+// request.auth.uid — never from a value the client sends — so a tampered
+// client cannot read, write or even probe another user's projects.
+//
+// (Deliberately no recursive catch-all under users/{userId}: matches are
+// unioned, so a broad owner-only rule would silently void the stricter
+// create/update checks on the projects collection.)
+//
+// Deploy with:  firebase deploy --only firestore:rules --project codzer
+// (or paste into Firebase Console → Firestore Database → Rules)
+//
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function validName(data) {
+      return data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 80;
+    }
+
+    // users/{userId} — profile document written at sign-up
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // users/{userId}/projects/{projectId} — "My Projects" metadata
+    match /users/{userId}/projects/{projectId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId)
+        && request.resource.data.ownerUid == request.auth.uid
+        && validName(request.resource.data);
+
+      // Rename / re-save metadata: the owner uid cannot be reassigned.
+      allow update: if isOwner(userId)
+        && (!('ownerUid' in request.resource.data)
+            || request.resource.data.ownerUid == request.auth.uid)
+        && validName(request.resource.data);
+
+      allow delete: if isOwner(userId);
+    }
+
+    // Everything else in the database is closed by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

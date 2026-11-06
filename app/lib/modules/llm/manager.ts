@@ -34,6 +34,7 @@ const ENABLED_PROVIDERS = new Set([
   'Ollama',
   'LMStudio',
   'OpenAILike',
+  'RemoteHosted',
 ]);
 
 export class LLMManager {

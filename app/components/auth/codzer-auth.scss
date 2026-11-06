@@ -1,0 +1,94 @@
+/*
+ * Codzer authentication — visual identity styles.
+ * Palette: near-black #0A0B0A · charcoal #141715 · off-white #F7F8F6 ·
+ * neon green #00E887 · neutral borders #E3E5E2.
+ *
+ * Motion only runs when the visitor has not asked for reduced motion.
+ */
+
+.codzer-page {
+  min-height: 100dvh;
+  background: #f7f8f6;
+  color: #0a0b0a;
+  -webkit-font-smoothing: antialiased;
+}
+
+.codzer-mark {
+  font-feature-settings: 'ss01' on;
+}
+
+/* Faint code-grid used behind the visual panel. */
+.codzer-grid {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 35%, #000 35%, transparent 100%);
+}
+
+.codzer-glow {
+  background: radial-gradient(closest-side, rgba(0, 232, 135, 0.22), transparent 72%);
+}
+
+.codzer-rise {
+  animation: codzer-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.codzer-fade {
+  animation: codzer-fade 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.codzer-delay-1 {
+  animation-delay: 70ms;
+}
+.codzer-delay-2 {
+  animation-delay: 140ms;
+}
+.codzer-delay-3 {
+  animation-delay: 220ms;
+}
+.codzer-delay-4 {
+  animation-delay: 320ms;
+}
+
+.codzer-caret {
+  animation: codzer-blink 1.15s steps(1, end) infinite;
+}
+
+@keyframes codzer-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes codzer-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes codzer-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codzer-rise,
+  .codzer-fade,
+  .codzer-caret {
+    animation: none !important;
+  }
+}

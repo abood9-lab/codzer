@@ -1,0 +1,45 @@
+rules_version = '2';
+
+//
+// Codzer — Cloud Storage security rules
+//
+// Project archives are stored at
+//   users/{userId}/projects/{projectId}/project.zip
+// and everything under a user's folder is readable/writable only by that
+// authenticated user. The owner check compares the {userId} path segment to
+// request.auth.uid directly — a client-supplied id never grants access, so no
+// user can read, write or even probe another user's files.
+//
+// (One match per path, deliberately: overlapping matches are unioned, so a
+// broad "owner only" rule would silently void stricter limits on a narrower
+// one. Size/type caps therefore live on the single user-folder rule.)
+//
+// Deploy with:  firebase deploy --only storage:rules --project codzer
+// (or paste into Firebase Console → Storage → Rules)
+//
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Everything under the signed-in user's folder: owner only,
+    // one object per path, sane size cap (project ZIPs stay well under this).
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId);
+
+      allow write: if isOwner(userId)
+        && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    // Everything outside users/** is closed by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

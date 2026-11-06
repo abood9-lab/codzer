@@ -5,9 +5,11 @@ import type { ChatHistoryItem } from './useChatHistory';
 import { createScopedLogger } from '~/utils/logger';
 
 export interface IChatMetadata {
-  gitUrl: string;
+  gitUrl?: string;
   gitBranch?: string;
   netlifySiteId?: string;
+  /** Codzer: links this chat's workspace to a cloud project in users/{uid}/projects. */
+  projectId?: string;
 }
 
 const logger = createScopedLogger('ChatHistory');

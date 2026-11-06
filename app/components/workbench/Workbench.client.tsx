@@ -11,8 +11,8 @@ import { toast } from 'react-toastify';
 import { EditorPanel } from './EditorPanel';
 import type { ElementInfo } from './Inspector';
 import { DEFAULT_TERMINAL_SIZE, TerminalTabs } from './terminal/TerminalTabs';
-
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
+import { SaveProjectButton } from '~/components/workbench/SaveProjectButton';
 import {
   type OnChangeCallback as OnEditorChange,
   type OnScrollCallback as OnEditorScroll,
@@ -451,6 +451,10 @@ export const Workbench = memo(
                   />
                   <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
                   <div className="ml-auto" />
+
+                  {/* Codzer: manual cloud save — always available, any view */}
+                  <SaveProjectButton />
+
                   {selectedView === 'code' && (
                     <div className="flex overflow-y-auto">
                       {/* Export Chat Button */}

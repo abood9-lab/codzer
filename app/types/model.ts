@@ -17,6 +17,8 @@ export type ProviderInfo = {
 export interface IProviderSetting {
   enabled?: boolean;
   baseUrl?: string;
+  /** Optional credential for providers pasted in as a URL (RemoteHosted). */
+  apiKey?: string;
   OPENAI_LIKE_API_MODELS?: string;
 }
 

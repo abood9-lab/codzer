@@ -1,4 +1,4 @@
-import { Link, Server, Monitor, Globe } from 'lucide-react';
+import { Link, Server, Monitor, Globe, Cloud } from 'lucide-react';
 import React from 'react';
 import { PROVIDER_DESCRIPTIONS } from './types';
 import { Card } from '~/components/ui/Card';
@@ -11,6 +11,7 @@ interface ProviderCardProps {
   provider: IProviderConfig;
   onToggle: (enabled: boolean) => void;
   onUpdateBaseUrl: (url: string) => void;
+  onUpdateApiKey?: (key: string) => void;
   isEditing: boolean;
   onStartEditing: () => void;
   onStopEditing: () => void;
@@ -20,6 +21,7 @@ function ProviderCard({
   provider,
   onToggle,
   onUpdateBaseUrl,
+  onUpdateApiKey,
   isEditing,
   onStartEditing,
   onStopEditing,
@@ -32,6 +34,8 @@ function ProviderCard({
         return Monitor;
       case 'OpenAILike':
         return Globe;
+      case 'RemoteHosted':
+        return Cloud;
       default:
         return Server;
     }
@@ -61,8 +65,15 @@ function ProviderCard({
           <div className="flex-1">
             <div className="mb-1 flex items-center gap-2">
               <h3 className="text-sm font-semibold text-bolt-elements-textPrimary">{provider.name}</h3>
-              <span className="rounded-full bg-bolt-elements-background-depth-3 px-2 py-0.5 text-[11px] text-bolt-elements-textSecondary">
-                Local
+              <span
+                className={classNames(
+                  'rounded-full px-2 py-0.5 text-[11px]',
+                  provider.name === 'RemoteHosted'
+                    ? 'bg-purple-500/15 text-purple-400'
+                    : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary',
+                )}
+              >
+                {provider.name === 'RemoteHosted' ? 'Remote' : 'Local'}
               </span>
             </div>
             <p className="text-sm text-bolt-elements-textSecondary">
@@ -105,6 +116,32 @@ function ProviderCard({
                     </div>
                   </button>
                 )}
+              </div>
+            )}
+
+            {/* A pasted remote endpoint may be auth-protected (401), so the key
+                lives here instead of only in .env.local. */}
+            {provider.settings.enabled && provider.name === 'RemoteHosted' && onUpdateApiKey && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-bolt-elements-textPrimary">
+                  API Key
+                  <span className="ml-2 text-xs font-normal text-bolt-elements-textTertiary">optional</span>
+                </label>
+                <input
+                  type="password"
+                  defaultValue={provider.settings.apiKey}
+                  placeholder="Only if your endpoint returns 401"
+                  autoComplete="off"
+                  className="w-full rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-1 px-3 py-2.5 text-sm text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary focus:border-bolt-elements-borderColorActive focus:outline-none focus:ring-2 focus:ring-bolt-elements-borderColorActive/40"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onUpdateApiKey(e.currentTarget.value);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    onUpdateApiKey(e.target.value);
+                  }}
+                />
               </div>
             )}
           </div>

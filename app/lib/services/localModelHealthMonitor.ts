@@ -32,7 +32,7 @@ class SimpleEventEmitter {
 }
 
 export interface ModelHealthStatus {
-  provider: 'Ollama' | 'LMStudio' | 'OpenAILike';
+  provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted';
   baseUrl: string;
   status: 'healthy' | 'unhealthy' | 'checking' | 'unknown';
   lastChecked: Date;
@@ -63,7 +63,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
   /**
    * Start monitoring a local provider
    */
-  startMonitoring(provider: 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl: string, checkInterval?: number): void {
+  startMonitoring(provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted', baseUrl: string, checkInterval?: number): void {
     const key = this._getProviderKey(provider, baseUrl);
 
     // Stop existing monitoring if any
@@ -91,7 +91,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
   /**
    * Stop monitoring a local provider
    */
-  stopMonitoring(provider: 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl: string): void {
+  stopMonitoring(provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted', baseUrl: string): void {
     const key = this._getProviderKey(provider, baseUrl);
 
     const interval = this._checkIntervals.get(key);
@@ -107,7 +107,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
   /**
    * Get current health status for a provider
    */
-  getHealthStatus(provider: 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl: string): ModelHealthStatus | undefined {
+  getHealthStatus(provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted', baseUrl: string): ModelHealthStatus | undefined {
     const key = this._getProviderKey(provider, baseUrl);
     return this._healthStatuses.get(key);
   }
@@ -123,7 +123,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
    * Perform a manual health check
    */
   async performHealthCheck(
-    provider: 'Ollama' | 'LMStudio' | 'OpenAILike',
+    provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted',
     baseUrl: string,
   ): Promise<HealthCheckResult> {
     const key = this._getProviderKey(provider, baseUrl);
@@ -192,7 +192,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
    * Check health of a specific provider
    */
   private async _checkProviderHealth(
-    provider: 'Ollama' | 'LMStudio' | 'OpenAILike',
+    provider: 'Ollama' | 'LMStudio' | 'OpenAILike' | 'RemoteHosted',
     baseUrl: string,
   ): Promise<HealthCheckResult> {
     const controller = new AbortController();
@@ -205,6 +205,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
         case 'LMStudio':
           return await this._checkLMStudioHealth(baseUrl, controller.signal);
         case 'OpenAILike':
+        case 'RemoteHosted':
           return await this._checkOpenAILikeHealth(baseUrl, controller.signal);
         default:
           throw new Error(`Unsupported provider: ${provider}`);

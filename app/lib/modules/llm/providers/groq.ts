@@ -12,62 +12,37 @@ export default class GroqProvider extends BaseProvider {
     apiTokenKey: 'GROQ_API_KEY',
   };
 
+  // Verified live against GET https://api.groq.com/openai/v1/models (active + context_window > 8000).
+  // Older entries (llama-3.1-8b-instant, llama-3.3-70b-versatile, groq/compound[-mini],
+  // qwen/qwen3-32b, qwen/qwen3.6-27b) were removed by Groq and returned model_not_found.
   staticModels: ModelInfo[] = [
-    {
-      name: 'llama-3.1-8b-instant',
-      label: 'Llama 3.1 8B',
-      provider: 'Groq',
-      maxTokenAllowed: 128000,
-      maxCompletionTokens: 8192,
-    },
-    {
-      name: 'llama-3.3-70b-versatile',
-      label: 'Llama 3.3 70B',
-      provider: 'Groq',
-      maxTokenAllowed: 128000,
-      maxCompletionTokens: 8192,
-    },
     {
       name: 'openai/gpt-oss-120b',
       label: 'GPT-OSS 120B',
       provider: 'Groq',
       maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
+      maxCompletionTokens: 8192,
     },
     {
       name: 'openai/gpt-oss-20b',
       label: 'GPT-OSS 20B',
       provider: 'Groq',
       maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
+      maxCompletionTokens: 8192,
     },
     {
-      name: 'groq/compound',
-      label: 'Groq Compound',
+      name: 'openai/gpt-oss-safeguard-20b',
+      label: 'GPT-OSS Safeguard 20B',
       provider: 'Groq',
       maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
+      maxCompletionTokens: 8192,
     },
     {
-      name: 'groq/compound-mini',
-      label: 'Groq Compound Mini',
+      name: 'qwen/qwen3.8-27b',
+      label: 'Qwen3.8 27B',
       provider: 'Groq',
       maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
-    },
-    {
-      name: 'qwen/qwen3-32b',
-      label: 'Qwen3 32B',
-      provider: 'Groq',
-      maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
-    },
-    {
-      name: 'qwen/qwen3.6-27b',
-      label: 'Qwen3.6 27B',
-      provider: 'Groq',
-      maxTokenAllowed: 131072,
-      maxCompletionTokens: 65536,
+      maxCompletionTokens: 8192,
     },
   ];
 

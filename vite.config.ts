@@ -186,6 +186,12 @@ export default defineConfig((config) => {
       'TOGETHER_API_BASE_URL',
     ],
 
+    server: {
+      // Loopback only; the ephemeral preview hostname is supplied per-process
+      // via __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS__ (see package.json dev script).
+      allowedHosts: ['localhost'],
+    },
+
     /*
      * Test configuration lives in vitest.config.ts.
      *
