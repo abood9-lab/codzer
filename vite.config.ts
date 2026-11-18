@@ -192,6 +192,12 @@ export default defineConfig((config) => {
       allowedHosts: ['localhost'],
     },
 
+    // `vite preview` serves the production build (Railway). Allow the host
+    // Railway injects so the public domain is not rejected.
+    preview: {
+      allowedHosts: ['localhost', process.env.RAILWAY_PUBLIC_DOMAIN].filter(Boolean) as string[],
+    },
+
     /*
      * Test configuration lives in vitest.config.ts.
      *

@@ -98,3 +98,17 @@ ENV VITE_LOG_LEVEL=${VITE_LOG_LEVEL} \
 
 RUN mkdir -p /app/run
 CMD ["pnpm", "run", "dev", "--host"]
+
+
+# ---- Railway / default target (last stage) ----
+# Keep this stage last: Docker builds the final stage by default, and the
+# `development` stage above appends `--host` to a script that already sets it.
+FROM build AS railway
+
+ENV NODE_ENV=production \
+    WRANGLER_SEND_METRICS=false \
+    RUNNING_IN_DOCKER=true
+
+EXPOSE 5173
+
+CMD ["sh", "-c", "pnpm exec vite preview --host 0.0.0.0 --port ${PORT:-5173} --strictPort"]
